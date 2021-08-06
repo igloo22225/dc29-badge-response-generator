@@ -36,9 +36,16 @@ func looptheids(count int, prefix string, isSignalBadge bool, criticalblocks [3]
 func main() {
 	var criticalblocks [3]string
 	starttoken := askQuestion("Input one of your request tokens: ")
-	criticalblocks[0] = starttoken[2:4]   //Second hex set
-	criticalblocks[1] = starttoken[8:10]  //Fifth hex set
-	criticalblocks[2] = starttoken[16:20] //9th and 10th hex set, the ID of the device
+	if len(starttoken) == 31 { //Handle a 31 bit badge. Credit to Simonomi for figuring out the true format https://github.com/d1str0/dc29-badge/issues/1#issuecomment-894018025
+		fmt.Println("Looks like this is a 31 token. Correcting...")
+		criticalblocks[0] = "0" + starttoken[2:3]                //Second hex set, also a component in the ID?
+		criticalblocks[1] = starttoken[3:4] + starttoken[8:9]    //Fifth hex set
+		criticalblocks[2] = starttoken[9:10] + starttoken[16:19] //9th and 10th hex set, the ID of the device
+	} else {
+		criticalblocks[0] = starttoken[2:4]   //Second hex set, also a component in the ID?
+		criticalblocks[1] = starttoken[8:10]  //Fifth hex set
+		criticalblocks[2] = starttoken[16:20] //9th and 10th hex set, the ID of the device
+	}
 	fmt.Println(`To get to the signal tier: `)
 	looptheids(7, "AA", true, criticalblocks)
 	fmt.Println(`To spread the signal: `)
